@@ -1,0 +1,8 @@
+*.asv
+*.m~
+*.log
+*.fig
+slprj/
+data/map_tiles/
+.DS_Store
+Thumbs.db

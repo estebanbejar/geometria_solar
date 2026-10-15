@@ -8,6 +8,13 @@ el suelo: la longitud se mide a lo largo de la fila y la anchura transversal
 sobre el plano inclinado. Si una mesa reúne varios módulos, calcula previamente
 sus dimensiones totales, incluyendo las juntas que desees representar.
 
+Para elegir el emplazamiento, pulsa **Seleccionar en mapa…**. Busca una
+localidad por nombre o código postal y selecciona la coincidencia correcta por
+región y país. Después puedes ajustar el punto arrastrando el marcador o
+editando las coordenadas, y cambiar el nombre del emplazamiento. Al confirmar,
+la ubicación se aplica al visualizador. La edición directa de coordenadas las
+etiqueta como **Punto personalizado**.
+
 Selecciona de una a treinta filas y la altura del borde inferior. Al confirmar
 un campo, se actualiza la instalación; el botón **Actualizar** permite repetir
 el cálculo. El panel resume hueco libre, paso, anchura proyectada, altura superior,

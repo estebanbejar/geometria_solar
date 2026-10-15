@@ -26,15 +26,20 @@ Universidad de Salamanca.
    ```
 
 También puedes añadir `src` al path y ejecutar `pv_filas_visualizador`.
-No requiere Internet ni toolboxes adicionales. La versión inicial se ha
+La geometría funciona sin Internet ni toolboxes adicionales; el mapa y la
+búsqueda de localidades sí requieren conexión. Puedes introducir las
+coordenadas manualmente cuando no haya conexión. Consulta el
+[manual del selector de ubicación](docs/ubicacion.md). La versión se ha
 verificado en **MATLAB R2026a en Windows**. Utiliza componentes de interfaz
 modernos (`uifigure`, `uigridlayout`, `uidatepicker`); otras versiones no se han
 verificado.
 
 ## Qué permite explorar
 
-- Configurar ubicación, acimut, inclinación, dimensiones reales de las mesas,
-  número de filas y altura del borde inferior.
+- Buscar una localidad y ajustar el punto en un mapa, o introducir las
+  coordenadas manualmente.
+- Configurar acimut, inclinación, dimensiones reales de las mesas, número de
+  filas y altura del borde inferior.
 - Elegir fecha en el calendario, recorrer las horas o animar el día.
 - Observar sombras sobre el terreno y sobre las filas en perspectiva y planta.
 - Consultar posición solar, ángulo con el plano del módulo, separación y LCR.
@@ -104,9 +109,12 @@ siempre desde el Sur, también al introducir una latitud austral. Consulta las
 src/pv_filas_visualizador.m  Interfaz, vistas y animación
 src/pv_filas_modelo.m        Geometría, posición solar y sombras
 src/pv_hora_solar.m          Conversión solar/civil
+src/seleccionar_ubicacion.m  Selector de mapa y localidades
 examples/demo_filas.m       Lanzador
 examples/verificar_filas.m  Comprobaciones geométricas y de interfaz
+examples/verificar_ubicacion.m  Comprobaciones del selector
 assets/usal.png             Logo aportado para la interfaz
+assets/location_picker/     Interfaz web del mapa y Leaflet local
 docs/                      Manual, ecuaciones e imágenes
 ```
 
@@ -120,6 +128,12 @@ Se verifican la separación de referencia, ausencia de sombras en la ventana
 protegida, sombras fuera de ella, simetría Este/Oeste, mesas horizontales, una
 sola fila, incidencia posterior en verano, noche, conversión horaria y apertura
 de la interfaz.
+
+Para comprobar aceptación, cancelación y límites del selector de ubicación:
+
+```matlab
+run('examples/verificar_ubicacion.m')
+```
 
 ## Licencia y atribución
 

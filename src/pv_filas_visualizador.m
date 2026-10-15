@@ -8,12 +8,14 @@ header=uigridlayout(outer,[1 2]);header.ColumnWidth={220,'1x'};
 logo=uiimage(header,'ImageSource',fullfile(fileparts(fileparts(mfilename('fullpath'))),'assets','usal.png'),'ScaleMethod','fit');
 uilabel(header,'Text',{'Escuela Técnica Superior de Ingeniería Industrial. Área de Tecnología Electrónica', ...
     'Tecnología e Instalaciones Fotovoltaicas: Geometría Solar.'},'FontSize',18,'FontWeight','bold');
-layout=uigridlayout(outer,[1 2]); layout.ColumnWidth={280,'1x'};
-controls=uigridlayout(layout,[18 2]); controls.ColumnWidth={155,'1x'};
+layout=uigridlayout(outer,[1 2]); layout.ColumnWidth={320,'1x'};
+controls=uigridlayout(layout,[20 2]); controls.ColumnWidth={155,'1x'};controls.Scrollable='on';
 controls.RowSpacing=5;
-controls.RowHeight=[repmat({30},1,12),{40,35,55,115,'1x',25}];
+controls.RowHeight=[repmat({30},1,14),{40,35,55,115,'1x',25}];
 lat=number('Latitud (° N)',40,[-65 65]);
 lon=number('Longitud (° E)',-5,[-180 180]);
+uilabel(controls,'Text','Emplazamiento');locationName=uieditfield(controls,'text','Value','Punto seleccionado','Tag','locationName');
+mapButton=uibutton(controls,'Text','Seleccionar en mapa…','Tag','selectLocation','ButtonPushedFcn',@selectLocation);mapButton.Layout.Column=[1 2];
 alpha=number('Acimut (°)',0,[-90 90]);
 beta=number('Inclinación (°)',30,[0 45]);
 W=number('Longitud fila (m)',10,[.1 1000]);
@@ -47,6 +49,7 @@ slider.ValueChangingFcn=@(~,e) showhour(e.Value);
 slider.ValueChangedFcn=@(~,~) showhour(slider.Value);
 hour.ValueChangedFcn=@(~,~) showhour(hour.Value);
 for c=[lat lon alpha beta W L n h], c.ValueChangedFcn=@rebuild; end
+lat.ValueChangedFcn=@coordinatesChanged;lon.ValueChangedFcn=@coordinatesChanged;
 date.ValueChangedFcn=@rebuild;
 fig.CloseRequestFcn=@closeapp;
 rebuild();
@@ -88,6 +91,13 @@ rebuild();
         end
     end
     function release(), busy=false; end
+    function coordinatesChanged(varargin),locationName.Value='Punto personalizado';rebuild();end
+    function selectLocation(varargin)
+        if busy,return;end
+        running=false;play.Text='Animar día';
+        [newLat,newLon,ok,name]=seleccionar_ubicacion(lat.Value,lon.Value,Nombre=string(locationName.Value),LatitudeLimits=[-65 65]);
+        if ok && isvalid(fig),lat.Value=newLat;lon.Value=newLon;locationName.Value=name;rebuild();end
+    end
     function showhour(t)
         if isempty(cached), return; end
         hour.Value=t; slider.Value=t;
@@ -115,9 +125,11 @@ rebuild();
             end
             text(ax2,(j-1)*m.P+m.b/2,0,sprintf('%d',j),'HorizontalAlignment','center');
         end
+        sunPoint=[];
         if m.alt>0
-            s=m.sun; origin=[extent/2,0,params.h+m.H];
-            quiver3(ax3,origin(1),origin(2),origin(3),s(1)*params.L,s(2)*params.L,s(3)*params.L,0,'Color',[.95 .6 0],'LineWidth',2);
+            s=m.sun*max(3*params.L,.4*params.W); origin=[extent/2,0,params.h+m.H];sunPoint=origin+s;
+            quiver3(ax3,origin(1),origin(2),origin(3),s(1),s(2),s(3),0,'Color',[1 .75 0],'LineWidth',2.5,'Tag','sunRay');
+            plot3(ax3,sunPoint(1),sunPoint(2),sunPoint(3),'o','MarkerSize',15,'MarkerFaceColor',[1 .85 0],'MarkerEdgeColor',[1 .65 0],'Tag','sunDisc');
             status.Text=sprintf('%02d:%02d · %s\nAltura solar: %.1f° · acimut: %.1f°\nSombreado conjunto: %.1f %%',floor(t),floor(60*mod(t,1)),mode.Value,m.alt,m.az,100*mean(m.fraccion));
         else
             status.Text=sprintf('%.2f h · %s · Sol bajo el horizonte',t,mode.Value);
@@ -127,6 +139,11 @@ rebuild();
             xlabel(a,'Perpendicular a filas (m)');ylabel(a,'A lo largo de filas (m)');
         end
         zlim(ax3,[0 max(1,params.h+m.H+params.L)]);zlabel(ax3,'Altura (m)');view(ax3,[-40 25]);
+        if ~isempty(sunPoint)
+            xlim(ax3,[min(-margin,sunPoint(1)-margin/2),max(extent+margin,sunPoint(1)+margin/2)]);
+            ylim(ax3,[min(-params.W/2-margin,sunPoint(2)-margin/2),max(params.W/2+margin,sunPoint(2)+margin/2)]);
+            zlim(ax3,[0 max([1,params.h+m.H+params.L,sunPoint(3)+margin/2])]);
+        end
         compass(ax3,true,extent,margin);compass(ax2,false,extent,margin);
         if m.alt>0
             face='frontal';if m.posterior,face='posterior';end
